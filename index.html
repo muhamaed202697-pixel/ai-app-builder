@@ -93,76 +93,88 @@ placeholder="مثال: أريد إنشاء تطبيق لإدارة المستش�
 <script>
 
 
-const API_URL =
-  "https://ai-app-engine-2.mohammed94tv94.workers.dev/generate";
 
-async function generateApp() {
-  const promptInput = document.querySelector(
-    "#prompt, #description, textarea, input[type='text']"
-  );
+async function generate() {
+  const promptText = document.getElementById("prompt").value.trim();
+  const result = document.getElementById("result");
+  const button = document.getElementById("createBtn");
 
-  if (!promptInput || !promptInput.value.trim()) {
+  if (!promptText) {
     alert("يرجى كتابة وصف التطبيق أولاً");
     return;
   }
 
-  const button = document.querySelector(
-    "#generateBtn, #generateButton, button[type='submit']"
-  );
-
-  const originalText = button ? button.textContent : "";
+  button.disabled = true;
+  button.textContent = "جاري إنشاء المشروع...";
+  result.textContent = "🤖 يتصل بمحرك الذكاء الاصطناعي...";
 
   try {
-    if (button) {
-      button.disabled = true;
-      button.textContent = "جاري إنشاء التطبيق...";
-    }
-
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        prompt: promptInput.value.trim()
-      })
-    });
+    const response = await fetch(
+      "https://ai-app-engine-2.mohammed94tv94.workers.dev/generate",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prompt: promptText
+        })
+      }
+    );
 
     const data = await response.json();
 
     if (!response.ok || !data.success) {
-      throw new Error(data.error || "حدث خطأ في الاتصال بالمحرك");
+      throw new Error(
+        data.error || data.message || "فشل الاتصال بـ Gemini"
+      );
     }
 
-    const result = data.result || data.text;
+    const answer = data.result || data.text;
 
-    if (!result) {
-      throw new Error("لم تصل نتيجة من Gemini");
+    if (!answer) {
+      throw new Error("لم تصل إجابة من Gemini");
     }
 
-    let output = document.querySelector(
-      "#result, #output, #generatedResult"
-    );
+    result.innerHTML = "";
 
-    if (!output) {
-      output = document.createElement("div");
-      output.id = "generatedResult";
-      output.style.cssText =
-        "white-space:pre-wrap;padding:20px;margin:20px 0;border-radius:12px;background:#f1f5f9;color:#111827;direction:rtl;";
-      document.body.appendChild(output);
-    }
+    const heading = document.createElement("h3");
+    heading.textContent = "🎉 نتيجة إنشاء المشروع";
 
-    output.textContent = result;
+    const content = document.createElement("pre");
+    content.textContent = answer;
+    content.style.cssText =
+      "white-space:pre-wrap;overflow-wrap:anywhere;direction:rtl;text-align:right;font-family:Arial;line-height:1.9;";
+
+    result.appendChild(heading);
+    result.appendChild(content);
+
+    const projectId = "APP-" + Date.now();
+
+    localStorage.setItem("myProject", JSON.stringify({
+      id: projectId,
+      prompt: promptText,
+      result: answer,
+      createdAt: new Date().toISOString()
+    }));
 
   } catch (error) {
-    alert("تعذر إنشاء المشروع: " + error.message);
+    result.innerHTML = "";
+
+    const heading = document.createElement("h3");
+    heading.textContent = "تعذر إنشاء المشروع";
+
+    const message = document.createElement("p");
+    message.textContent = error.message;
+
+    result.append(heading, message);
+
   } finally {
-    if (button) {
-      button.disabled = false;
-      button.textContent = originalText;
-    }
+    button.disabled = false;
+    button.textContent = "إنشاء المشروع";
   }
 }
+
 
 
 </script>
