@@ -130,10 +130,11 @@ async function generate(){
     const data = await response.json();
 
     if(!response.ok || !data.success){
-      throw new Error(
-        data.message || "حدث خطأ في إنشاء المشروع"
-      );
-    }
+  throw new Error(
+    (data.message || "حدث خطأ") +
+    (data.details ? " — " + data.details : "")
+  );
+}
 
     const project = data.project;
 
