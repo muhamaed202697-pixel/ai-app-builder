@@ -77,6 +77,100 @@ id.textContent="رقم المشروع: "+project.id;
 
 result.append(title,description,platform,status,id);
 }
-</script>
+
+async function generate() {
+  const promptText = document.getElementById("prompt").value.trim();
+  const result = document.getElementById("result");
+  const button = document.getElementById("createBtn");
+
+  if (!promptText) {
+    alert("يرجى كتابة وصف التطبيق أولاً");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "جاري بناء التطبيق بالذكاء الاصطناعي...";
+  result.textContent = "يرجى الانتظار، يتم تحليل فكرتك الآن...";
+
+  try {
+    const response = await fetch(
+      "https://ai-app-engine-2.mohammed94tv94.workers.dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          prompt: promptText
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message + (data.details ? ": " + data.details : "")
+      );
+    }
+
+    const project = data.project;
+
+    result.innerHTML = "";
+
+    function addText(title, value) {
+      if (!value) return;
+
+      const heading = document.createElement("h3");
+      heading.textContent = title;
+
+      const content = document.createElement("div");
+
+      if (Array.isArray(value)) {
+        const list = document.createElement("ul");
+        value.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = typeof item === "object"
+            ? JSON.stringify(item)
+            : String(item);
+          list.appendChild(li);
+        });
+        content.appendChild(list);
+      } else {
+        content.textContent = typeof value === "object"
+          ? JSON.stringify(value, null, 2)
+          : String(value);
+      }
+
+      result.append(heading, content);
+    }
+
+    addText("🎉 " + (project.appName || "تم إنشاء مشروعك"), "");
+    addText("📱 وصف التطبيق", project.description);
+    addText("📄 شاشات التطبيق", project.screens);
+    addText("⚙️ المميزات", project.features);
+    addText("🧭 التنقل بين الأقسام", project.navigation);
+    addText("🎨 التصميم", project.design);
+    addText("🛠️ الخطة التقنية", project.technicalPlan);
+
+    const projectId = "APP-" + Date.now();
+
+    localStorage.setItem("myProject", JSON.stringify({
+      id: projectId,
+      prompt: promptText,
+      project: project
+    }));
+
+    addText("رقم المشروع", projectId);
+    addText("الحالة", "تم إنشاء مخطط المشروع بنجاح");
+
+  } catch (error) {
+    result.textContent = "تعذر إنشاء المشروع: " + error.message;
+  } finally {
+    button.disabled = false;
+    button.textContent = "إنشاء المشروع";
+  }
+}
+
 </body>
 </html>
