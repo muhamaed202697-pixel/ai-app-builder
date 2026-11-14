@@ -65,7 +65,31 @@ footer{padding:25px;color:#aab}
 </main>
 <footer>منصة صانع التطبيقات الذكي © 2026</footer>
 <script>
+
 function generate(){
+  const prompt = document.getElementById("prompt").value.trim();
+
+  if(!prompt){
+    alert("يرجى كتابة وصف التطبيق");
+    return;
+  }
+
+  const result = window.AppBuilder.createProject(prompt);
+
+  if(!result.success){
+    alert(result.message);
+    return;
+  }
+
+  document.getElementById("result").innerHTML = `
+    <h3>تم إنشاء مشروعك بنجاح 🎉</h3>
+    <p>${result.project.description.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>
+    <p>المنصة: Android</p>
+    <p>الحالة: مسودة</p>
+    <p>رقم المشروع: ${result.project.id}</p>
+  `;
+}
+
 const p=document.getElementById("prompt").value.trim();
 if(!p){alert("يرجى كتابة وصف التطبيق");return;}
 document.getElementById("result").innerHTML=
