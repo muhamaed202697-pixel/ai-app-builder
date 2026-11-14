@@ -7,42 +7,14 @@
 <title>منصة صانع التطبيقات الذكي</title>
 <style>
 *{box-sizing:border-box}
-body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#101827;
-color:white;
-text-align:center;
-}
-header{
-padding:35px 15px;
-background:#172b46;
-}
+body{margin:0;font-family:Arial;background:#101827;color:white;text-align:center}
+header{padding:35px 15px;background:#172b46}
 h1{color:#54d6c5}
 main{padding:25px 15px;max-width:650px;margin:auto}
-.card{
-background:#1c2c42;
-padding:22px;
-border-radius:16px;
-margin:18px 0;
-}
-textarea{
-width:100%;
-height:150px;
-padding:15px;
-border-radius:10px;
-font-size:16px;
-direction:rtl;
-}
-button{
-background:#12b9a5;
-border:0;
-padding:14px 25px;
-border-radius:10px;
-font-size:17px;
-font-weight:bold;
-margin-top:15px;
-}
+.card{background:#1c2c42;padding:22px;border-radius:16px;margin:18px 0}
+textarea{width:100%;height:150px;padding:15px;border-radius:10px;font-size:16px;direction:rtl}
+button{background:#12b9a5;border:0;padding:14px 25px;border-radius:10px;font-size:17px;font-weight:bold;margin-top:15px;cursor:pointer}
+button:active{opacity:.7}
 footer{padding:25px;color:#aab}
 </style>
 </head>
@@ -51,53 +23,60 @@ footer{padding:25px;color:#aab}
 <h1>صانع التطبيقات الذكي</h1>
 <p>أنشئ تطبيقك الخاص بمساعدة الذكاء الاصطناعي</p>
 </header>
+
 <main>
 <div class="card">
 <h2>🚀 ابدأ مشروعك</h2>
 <p>اكتب وصف التطبيق الذي تريد إنشاءه:</p>
 <textarea id="prompt" placeholder="مثال: أريد إنشاء تطبيق لإدارة المستشفى..."></textarea>
-<button onclick="generate()">إنشاء المشروع</button>
+<button id="createBtn" onclick="generate()">إنشاء المشروع</button>
 </div>
+
 <div class="card" id="result">
 <h3>مساحة المشروع</h3>
 <p>سيظهر وصف مشروعك هنا.</p>
 </div>
 </main>
+
 <footer>منصة صانع التطبيقات الذكي © 2026</footer>
+
 <script>
-
 function generate(){
-  const prompt = document.getElementById("prompt").value.trim();
+const promptText=document.getElementById("prompt").value.trim();
+const result=document.getElementById("result");
 
-  if(!prompt){
-    alert("يرجى كتابة وصف التطبيق");
-    return;
-  }
-
-  const result = window.AppBuilder.createProject(prompt);
-
-  if(!result.success){
-    alert(result.message);
-    return;
-  }
-
-  document.getElementById("result").innerHTML = `
-    <h3>تم إنشاء مشروعك بنجاح 🎉</h3>
-    <p>${result.project.description.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</p>
-    <p>المنصة: Android</p>
-    <p>الحالة: مسودة</p>
-    <p>رقم المشروع: ${result.project.id}</p>
-  `;
+if(!promptText){
+alert("يرجى كتابة وصف التطبيق أولاً");
+return;
 }
 
-const p=document.getElementById("prompt").value.trim();
-if(!p){alert("يرجى كتابة وصف التطبيق");return;}
-document.getElementById("result").innerHTML=
-"<h3>تم استلام فكرة مشروعك</h3><p>"+p.replace(/</g,"&lt;").replace(/>/g,"&gt;")+"</p><p>المرحلة التالية: ربط محرك الذكاء الاصطناعي.</p>";
+const project={
+id:"APP-"+Date.now(),
+description:promptText,
+platform:"Android",
+status:"Draft"
+};
+
+localStorage.setItem("myProject",JSON.stringify(project));
+
+result.innerHTML="";
+const title=document.createElement("h3");
+title.textContent="🎉 تم إنشاء المشروع بنجاح";
+
+const description=document.createElement("p");
+description.textContent=project.description;
+
+const platform=document.createElement("p");
+platform.textContent="المنصة: Android";
+
+const status=document.createElement("p");
+status.textContent="الحالة: مسودة";
+
+const id=document.createElement("p");
+id.textContent="رقم المشروع: "+project.id;
+
+result.append(title,description,platform,status,id);
 }
 </script>
-
-<script src="app.js"></script>
-
 </body>
 </html>
