@@ -5,112 +5,133 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>منصة صانع التطبيقات الذكي</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#101827;color:white;text-align:center}
-header{padding:35px 15px;background:#172b46}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#101827;
+  color:white;
+  text-align:center;
+}
+header{
+  padding:35px 15px;
+  background:#172b46;
+}
 h1{color:#54d6c5}
-main{padding:25px 15px;max-width:650px;margin:auto}
-.card{background:#1c2c42;padding:22px;border-radius:16px;margin:18px 0}
-textarea{width:100%;height:150px;padding:15px;border-radius:10px;font-size:16px;direction:rtl}
-button{background:#12b9a5;border:0;padding:14px 25px;border-radius:10px;font-size:17px;font-weight:bold;margin-top:15px;cursor:pointer}
-button:active{opacity:.7}
+main{
+  padding:25px 15px;
+  max-width:750px;
+  margin:auto;
+}
+.card{
+  background:#1c2c42;
+  padding:22px;
+  border-radius:16px;
+  margin:18px 0;
+}
+textarea{
+  width:100%;
+  height:150px;
+  padding:15px;
+  border-radius:10px;
+  font-size:16px;
+  direction:rtl;
+}
+button{
+  background:#12b9a5;
+  border:0;
+  padding:14px 25px;
+  border-radius:10px;
+  font-size:17px;
+  font-weight:bold;
+  margin-top:15px;
+  cursor:pointer;
+}
+button:disabled{opacity:.5}
+#result{
+  text-align:right;
+  line-height:1.9;
+  overflow-wrap:anywhere;
+}
+#result h3{color:#54d6c5}
 footer{padding:25px;color:#aab}
 </style>
 </head>
+
 <body>
+
 <header>
 <h1>صانع التطبيقات الذكي</h1>
 <p>أنشئ تطبيقك الخاص بمساعدة الذكاء الاصطناعي</p>
 </header>
 
 <main>
+
 <div class="card">
 <h2>🚀 ابدأ مشروعك</h2>
 <p>اكتب وصف التطبيق الذي تريد إنشاءه:</p>
-<textarea id="prompt" placeholder="مثال: أريد إنشاء تطبيق لإدارة المستشفى..."></textarea>
-<button id="createBtn" onclick="generate()">إنشاء المشروع</button>
+
+<textarea id="prompt"
+placeholder="مثال: أريد إنشاء تطبيق لإدارة المستشفى..."></textarea>
+
+<button id="createBtn" onclick="generate()">
+إنشاء المشروع
+</button>
 </div>
 
 <div class="card" id="result">
 <h3>مساحة المشروع</h3>
-<p>سيظهر وصف مشروعك هنا.</p>
+<p>سيظهر مشروعك هنا.</p>
 </div>
+
 </main>
 
 <footer>منصة صانع التطبيقات الذكي © 2026</footer>
 
 <script>
-function generate(){
-const promptText=document.getElementById("prompt").value.trim();
-const result=document.getElementById("result");
 
-if(!promptText){
-alert("يرجى كتابة وصف التطبيق أولاً");
-return;
-}
+async function generate(){
 
-const project={
-id:"APP-"+Date.now(),
-description:promptText,
-platform:"Android",
-status:"Draft"
-};
+  const promptText =
+    document.getElementById("prompt").value.trim();
 
-localStorage.setItem("myProject",JSON.stringify(project));
+  const result =
+    document.getElementById("result");
 
-result.innerHTML="";
-const title=document.createElement("h3");
-title.textContent="🎉 تم إنشاء المشروع بنجاح";
+  const button =
+    document.getElementById("createBtn");
 
-const description=document.createElement("p");
-description.textContent=project.description;
-
-const platform=document.createElement("p");
-platform.textContent="المنصة: Android";
-
-const status=document.createElement("p");
-status.textContent="الحالة: مسودة";
-
-const id=document.createElement("p");
-id.textContent="رقم المشروع: "+project.id;
-
-result.append(title,description,platform,status,id);
-}
-
-async function generate() {
-  const promptText = document.getElementById("prompt").value.trim();
-  const result = document.getElementById("result");
-  const button = document.getElementById("createBtn");
-
-  if (!promptText) {
+  if(!promptText){
     alert("يرجى كتابة وصف التطبيق أولاً");
     return;
   }
 
   button.disabled = true;
-  button.textContent = "جاري بناء التطبيق بالذكاء الاصطناعي...";
-  result.textContent = "يرجى الانتظار، يتم تحليل فكرتك الآن...";
+  button.textContent = "جاري إنشاء المشروع...";
+  result.textContent = "🤖 يتصل محرك الذكاء الاصطناعي...";
 
-  try {
+  try{
+
     const response = await fetch(
       "https://ai-app-engine-2.mohammed94tv94.workers.dev",
       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
         },
-        body: JSON.stringify({
-          prompt: promptText
+        body:JSON.stringify({
+          prompt:promptText
         })
       }
     );
 
     const data = await response.json();
 
-    if (!response.ok || !data.success) {
+    if(!response.ok || !data.success){
       throw new Error(
-        data.message + (data.details ? ": " + data.details : "")
+        data.message || "حدث خطأ في إنشاء المشروع"
       );
     }
 
@@ -118,59 +139,95 @@ async function generate() {
 
     result.innerHTML = "";
 
-    function addText(title, value) {
-      if (!value) return;
+    function addSection(title,value){
+
+      if(value === undefined || value === null || value === ""){
+        return;
+      }
 
       const heading = document.createElement("h3");
       heading.textContent = title;
 
       const content = document.createElement("div");
 
-      if (Array.isArray(value)) {
+      if(Array.isArray(value)){
         const list = document.createElement("ul");
-        value.forEach(item => {
+
+        value.forEach(item=>{
           const li = document.createElement("li");
-          li.textContent = typeof item === "object"
-            ? JSON.stringify(item)
+
+          li.textContent =
+            typeof item === "object"
+            ? JSON.stringify(item,null,2)
             : String(item);
+
           list.appendChild(li);
         });
+
         content.appendChild(list);
-      } else {
-        content.textContent = typeof value === "object"
-          ? JSON.stringify(value, null, 2)
-          : String(value);
+
+      }else if(typeof value === "object"){
+
+        content.textContent =
+          JSON.stringify(value,null,2);
+
+      }else{
+
+        content.textContent = String(value);
+
       }
 
-      result.append(heading, content);
+      result.appendChild(heading);
+      result.appendChild(content);
     }
 
-    addText("🎉 " + (project.appName || "تم إنشاء مشروعك"), "");
-    addText("📱 وصف التطبيق", project.description);
-    addText("📄 شاشات التطبيق", project.screens);
-    addText("⚙️ المميزات", project.features);
-    addText("🧭 التنقل بين الأقسام", project.navigation);
-    addText("🎨 التصميم", project.design);
-    addText("🛠️ الخطة التقنية", project.technicalPlan);
+    addSection("🎉 اسم التطبيق",project.appName);
+    addSection("📱 وصف التطبيق",project.description);
+    addSection("📄 شاشات التطبيق",project.screens);
+    addSection("⚙️ مميزات التطبيق",project.features);
+    addSection("🧭 التنقل بين الأقسام",project.navigation);
+    addSection("🎨 التصميم والألوان",project.design);
+    addSection("🛠️ الخطة التقنية",project.technicalPlan);
 
     const projectId = "APP-" + Date.now();
 
-    localStorage.setItem("myProject", JSON.stringify({
-      id: projectId,
-      prompt: promptText,
-      project: project
-    }));
+    const savedProject = {
+      id:projectId,
+      prompt:promptText,
+      project:project,
+      createdAt:new Date().toISOString()
+    };
 
-    addText("رقم المشروع", projectId);
-    addText("الحالة", "تم إنشاء مخطط المشروع بنجاح");
+    localStorage.setItem(
+      "myProject",
+      JSON.stringify(savedProject)
+    );
 
-  } catch (error) {
-    result.textContent = "تعذر إنشاء المشروع: " + error.message;
-  } finally {
+    addSection("🔢 رقم المشروع",projectId);
+    addSection("✅ حالة المشروع","تم إنشاء مخطط المشروع بنجاح");
+
+  }catch(error){
+
+    result.innerHTML = "";
+
+    const heading = document.createElement("h3");
+    heading.textContent = "تعذر إنشاء المشروع";
+
+    const message = document.createElement("p");
+    message.textContent = error.message;
+
+    result.append(heading,message);
+
+  }finally{
+
     button.disabled = false;
     button.textContent = "إنشاء المشروع";
+
   }
+
 }
+
+</script>
 
 </body>
 </html>
